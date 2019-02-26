@@ -3,17 +3,17 @@ Contributors: rickey29
 Donate link: https://flexplat.com
 Tags: amp, pwa, awd, rwd, mobile, accelerated mobile pages, progressive web apps, adaptive web design, responsive web design, wordpress, plugin, theme, mobile-friendly, mobile-first, mobile-ready, touch-optimized
 Requires at least: 4.7
-Tested up to: 5.0.3
+Tested up to: 5.1
 Requires PHP: 5.2.4
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-WordPress cloud solution for both AMP and PWA
+Transcode WordPress into PWA and AMP styles.
 
 == Description ==
 
-WordPress PWAMP Online is a WordPress cloud/SaaS solution for both lightning fast load time of AMP pages and first load cache-enabled of PWA pages.
+Transcode WordPress into both first load cache-enabled of PWA style and lightning fast load time of AMP style.
 
 == Installation ==
 1. Upload the plugin files to the '/wp-content/plugins/pwampo' directory, or install the plugin through the WordPress plugins screen directly.
@@ -51,6 +51,13 @@ Enter "https://yoursite.com/?desktop" in your web browser address bar.
 1. https://download.flexplat.com/wordpress-pwampo.png
 
 == Changelog ==
+
+= 2.2.0 =
+(Tue., Feb. 26, 2019)
+* support: https://www.dentist-manila.com/
+* support: https://dentist-asia.com/
+* support: https://dental-implants-asia.com/
+* support: https://simplyintense.com/
 
 = 2.1.0 =
 (Sun., Jan. 27, 2019)

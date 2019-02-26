@@ -2,8 +2,8 @@
 /*
 Plugin Name: WordPress PWAMP Online
 Plugin URI:  https://flexplat.com/wordpress-pwampo/
-Description: WordPress PWAMP Online is a WordPress cloud/SaaS solution for both lightning fast load time of AMP pages and first load cache-enabled of PWA pages.
-Version:     2.1.0
+Description: Transcode WordPress into both first load cache-enabled of PWA style and lightning fast load time of AMP style.
+Version:     2.2.0
 Author:      Rickey Gu
 Author URI:  https://flexplat.com
 Text Domain: pwampo
@@ -227,7 +227,8 @@ self.addEventListener(\'install\', function(event) {
 		$home_url = home_url();
 		$data = array(
 			'page_type' => $this->get_page_type(),
-			'template_directory_uri' => get_template_directory_uri(),
+			'themes_url' => get_template_directory_uri(),
+			'plugins_url' => plugins_url(),
 			'viewport_width' => !empty($_COOKIE['pwamp-viewport-width']) ? $_COOKIE['pwamp-viewport-width'] : '',
 			'permalink' => !empty(get_option('permalink_structure')) ? 'pretty' : 'ugly',
 			'page_url' => ( isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http' ) . '://' . $_SERVER[HTTP_HOST] . $_SERVER[REQUEST_URI],
