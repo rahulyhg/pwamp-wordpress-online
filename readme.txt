@@ -5,15 +5,15 @@ Tags: amp, pwa, awd, rwd, mobile, accelerated mobile pages, progressive web apps
 Requires at least: 4.7
 Tested up to: 5.1
 Requires PHP: 5.2.4
-Stable tag: 2.2.0
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Transcode WordPress into PWA and AMP styles.
+Transcodes WordPress into PWA/AMP/PWAMP style.
 
 == Description ==
 
-Transcode WordPress into both first load cache-enabled of PWA style and lightning fast load time of AMP style.
+Transcodes WordPress into both first load cache-enabled of PWA and lightning fast load time of AMP style.
 
 == Installation ==
 1. Upload the plugin files to the '/wp-content/plugins/pwampo' directory, or install the plugin through the WordPress plugins screen directly.
@@ -46,18 +46,24 @@ Enter "https://yoursite.com/?desktop" in your web browser address bar.
 14. https://twentysixteen-online-2.flexplat.com/?amp
 15. https://tyche-online.flexplat.com/?amp
 16. https://tyche-online-2.flexplat.com/?amp
+17. https://virtue-online.flexplat.com/?amp
+18. https://virtue-online-2.flexplat.com/?amp
 
 == Screenshots ==
 1. https://download.flexplat.com/wordpress-pwampo.png
 
 == Changelog ==
 
+= 2.3.0 =
+(Mon., Mar. 04, 2019)
+* new feature: support Virtue theme
+
 = 2.2.0 =
 (Tue., Feb. 26, 2019)
-* support: https://www.dentist-manila.com/
-* support: https://dentist-asia.com/
-* support: https://dental-implants-asia.com/
-* support: https://simplyintense.com/
+* new feature: support https://www.dentist-manila.com/
+* new feature: support https://dentist-asia.com/
+* new feature: support https://dental-implants-asia.com/
+* new feature: support https://simplyintense.com/
 
 = 2.1.0 =
 (Sun., Jan. 27, 2019)
