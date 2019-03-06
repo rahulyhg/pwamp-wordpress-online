@@ -1,12 +1,12 @@
 <?php
 /*
-Plugin Name: WordPress PWAMP Premium
-Plugin URI:  https://flexplat.com/wordpress-pwampp/
-Description: Transcodes WordPress into both first load cache-enabled of PWA and lightning fast load time of AMP style.
-Version:     2.3.0
+Plugin Name: WordPress PWAMP Online
+Plugin URI:  https://flexplat.com/wordpress-pwampo/
+Description: Transcode WordPress into both first load cache-enabled of PWA style and lightning fast load time of AMP style.
+Version:     2.2.0
 Author:      Rickey Gu
 Author URI:  https://flexplat.com
-Text Domain: pwampp
+Text Domain: pwampo
 Domain Path: /languages
 */
 
@@ -21,7 +21,7 @@ require_once plugin_dir_path(__FILE__) . 'lib/detection.php';
 require_once plugin_dir_path(__FILE__) . 'theme/transcoding.php';
 
 
-class PWAMPP
+class PWAMPO
 {
 	private $page = '';
 
@@ -214,7 +214,7 @@ self.addEventListener(\'install\', function(event) {
 		$accept = !empty($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : '';
 		$profile = !empty($_SERVER['HTTP_PROFILE']) ? $_SERVER['HTTP_PROFILE'] : '';
 
-		$detection = new MP_Detection();
+		$detection = new MO_Detection();
 
 		$device = $detection->get_device($user_agent, $accept, $profile);
 
@@ -235,7 +235,7 @@ self.addEventListener(\'install\', function(event) {
 			'canonical' => $this->get_canonical()
 		);
 
-		$transcoding = new PWAMPP_Transcoding($home_url, $data);
+		$transcoding = new PWAMPO_Transcoding($home_url, $data);
 
 		$transcoding->transcode($page);
 
@@ -377,6 +377,11 @@ self.addEventListener(\'install\', function(event) {
 			return;
 		}
 
+		if ( is_plugin_active('pwampp/pwampp.php') )
+		{
+			return;
+		}
+
 
 		add_action('init', array($this, 'init'));
 
@@ -433,10 +438,10 @@ self.addEventListener(\'install\', function(event) {
 }
 
 
-function pwampp_main()
+function pwampo_main()
 {
-	$pwamp = new PWAMPP();
+	$pwamp = new PWAMPO();
 
 	$pwamp->main();
 }
-add_action('plugins_loaded', 'pwampp_main', 1);
+add_action('plugins_loaded', 'pwampo_main', 1);
