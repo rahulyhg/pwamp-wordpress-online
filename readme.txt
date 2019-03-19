@@ -5,7 +5,7 @@ Tags: amp, pwa, awd, rwd, mobile, accelerated mobile pages, progressive web apps
 Requires at least: 4.7
 Tested up to: 5.1
 Requires PHP: 5.2.4
-Stable tag: 2.3.0
+Stable tag: 2.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,7 +13,7 @@ Transcodes WordPress into PWA/AMP/PWAMP style.
 
 == Description ==
 
-Transcodes WordPress into both first load cache-enabled of PWA and lightning fast load time of AMP style.
+Transcodes WordPress into both first load cache-enabled of PWA and lightning fast load time of AMP style.  When end users visit your web site, after WordPress generates web pages, this plugin will forward these pages to my transcoding server: flexplat.com; flexplat.com will convert them into PWA & AMP style and return them to this plugin, then this plugin will display these new pages to end users.
 
 == Installation ==
 1. Upload the plugin files to the '/wp-content/plugins/pwampo' directory, or install the plugin through the WordPress plugins screen directly.
@@ -28,6 +28,9 @@ Enter "https://yoursite.com/?amp" in your web browser address bar.
 = How to make web browser switch to original theme pages? =
 
 Enter "https://yoursite.com/?desktop" in your web browser address bar.
+
+== Download ==
+1. GitHub: https://github.com/rickey29/wordpress-pwampo
 
 == Demo sites ==
 1. https://hestia-online.flexplat.com/?amp
@@ -54,16 +57,17 @@ Enter "https://yoursite.com/?desktop" in your web browser address bar.
 
 == Changelog ==
 
+= 2.4.0 =
+(Sun., Mar. 10, 2019)
+* new feature: support more web site(s)
+
 = 2.3.0 =
 (Mon., Mar. 04, 2019)
-* new feature: support Virtue theme
+* new feature: support more theme(s)
 
 = 2.2.0 =
 (Tue., Feb. 26, 2019)
-* new feature: support https://www.dentist-manila.com/
-* new feature: support https://dentist-asia.com/
-* new feature: support https://dental-implants-asia.com/
-* new feature: support https://simplyintense.com/
+* new feature: support more web site(s)
 
 = 2.1.0 =
 (Sun., Jan. 27, 2019)

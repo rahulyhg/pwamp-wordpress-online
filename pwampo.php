@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: WordPress PWAMP Online
-Plugin URI:  https://flexplat.com/wordpress-pwampo/
-Description: Transcodes WordPress into both first load cache-enabled of PWA and lightning fast load time of AMP style.
-Version:     2.3.0
+Plugin URI:  https://flexplat.com
+Description: Transcodes WordPress into both first load cache-enabled of PWA and lightning fast load time of AMP style.  When end users visit your web site, after WordPress generates web pages, this plugin will forward these pages to my transcoding server: flexplat.com; flexplat.com will convert them into PWA & AMP style and return them to this plugin, then this plugin will display these new pages to end users.
+Version:     2.4.0
 Author:      Rickey Gu
 Author URI:  https://flexplat.com
 Text Domain: pwampo
