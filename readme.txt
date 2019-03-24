@@ -1,11 +1,11 @@
-=== WordPress PWAMP Online ===
+=== PWAMP Online WordPress ===
 Contributors: rickey29
 Donate link: https://flexplat.com
 Tags: amp, pwa, awd, rwd, mobile, accelerated mobile pages, progressive web apps, adaptive web design, responsive web design, wordpress, plugin, theme, mobile-friendly, mobile-first, mobile-ready, touch-optimized
 Requires at least: 4.7
-Tested up to: 5.1
+Tested up to: 5.1.1
 Requires PHP: 5.2.4
-Stable tag: 2.4.0
+Stable tag: 2.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,7 +30,7 @@ Enter "https://yoursite.com/?amp" in your web browser address bar.
 Enter "https://yoursite.com/?desktop" in your web browser address bar.
 
 == Download ==
-1. GitHub: https://github.com/rickey29/wordpress-pwampo
+1. GitHub: https://github.com/rickey29/pwampo-wordpress
 
 == Demo sites ==
 1. https://hestia-online.flexplat.com/?amp
@@ -53,9 +53,13 @@ Enter "https://yoursite.com/?desktop" in your web browser address bar.
 18. https://virtue-online-2.flexplat.com/?amp
 
 == Screenshots ==
-1. https://download.flexplat.com/wordpress-pwampo.png
+1. https://download.flexplat.com/pwampo-wordpress.png
 
 == Changelog ==
+
+= 2.5.0 =
+(Sun., Mar. 24, 2019)
+* new feature: support more web site(s)
 
 = 2.4.0 =
 (Sun., Mar. 10, 2019)
