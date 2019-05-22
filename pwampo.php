@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: PWAMP WordPress Online
-Plugin URI:  https://flexplat.com
-Description: Transcodes WordPress into both first load cache-enabled of PWA and lightning fast load time of AMP style.  When end users visit your web site, after WordPress generates web pages, this plugin will forward these pages to my transcoding server: flexplat.com; flexplat.com will convert them into PWA & AMP style and return them to this plugin, then this plugin will display these new pages to end users.
-Version:     2.6.0
+Plugin URI:  https://flexplat.com/pwamp-wordpress/
+Description: Transcodes WordPress into both first load cache-enabled of PWA and lightning fast load time of AMP style.  When end users visit your web site, after WordPress generates web pages, this plugin will forward these pages to my transcoding server: flexplat.com; flexplat.com will convert them into AMP style and return these new pages to this plugin, then this plugin will display the pages to end users.
+Version:     2.7.0
 Author:      Rickey Gu
 Author URI:  https://flexplat.com
 Text Domain: pwampo
@@ -24,10 +24,20 @@ require_once plugin_dir_path(__FILE__) . 'theme/transcoding.php';
 class PWAMPO
 {
 	private $page = '';
+	private $home_url = '';
+	private $page_url = '';
+	private $viewport_width = '';
+	private $permalink = '';
 
 
 	public function __construct()
 	{
+		$this->page = '';
+		$this->home_url = home_url();
+		$parts = parse_url($this->home_url);
+		$this->page_url = $parts['scheme'] . '://' . $parts['host'] . add_query_arg();
+		$this->viewport_width = !empty($_COOKIE['pwamp-viewport-width']) ? $_COOKIE['pwamp-viewport-width'] : '';
+		$this->permalink = get_option('permalink_structure');
 	}
 
 	public function __destruct()
@@ -37,25 +47,19 @@ class PWAMPO
 
 	public function init()
 	{
-		$home_url = home_url();
-		$parts = parse_url($home_url);
-		$page_url = $parts['scheme'] . '://' . $parts['host'] . add_query_arg();
-
-		$base = str_replace(array('/', '.'), array('\/', '\.'), $home_url);
-		if ( preg_match('/^' . $base . '\/\??manifest\.webmanifest$/im', $page_url) )
+		$pattern = str_replace(array('/', '.'), array('\/', '\.'), $this->home_url);
+		if ( preg_match('/^' . $pattern . '\/\??manifest\.webmanifest$/im', $this->page_url) )
 		{
-			$plugin_dir_url = plugin_dir_url(__FILE__);
-
 			header('Content-Type: application/x-web-app-manifest+json', true);
 			echo '{
 	"name": "' . get_bloginfo('name') . ' &#8211; ' . get_bloginfo('description') . '",
 	"short_name": "' . get_bloginfo('name') . '",
-	"start_url": "' . $home_url . '",
+	"start_url": "' . $this->home_url . '",
 	"display": "standalone",
 	"theme_color": "#ffffff",
 	"background_color": "#ffffff",
 	"icons": [{
-		"src": ".' . str_replace($home_url, '', $plugin_dir_url) . 'lib/manifest/pwamp-logo-512.png",
+		"src": ".' . str_replace($this->home_url, '', plugin_dir_url(__FILE__)) . 'lib/manifest/pwamp-logo-512.png",
 		"sizes": "512x512",
 		"type": "image/png"
 	}]
@@ -63,17 +67,15 @@ class PWAMPO
 
 			exit();
 		}
-		elseif ( preg_match('/^' . $base . '\/\??pwamp-sw-html$/im', $page_url) )
+		elseif ( preg_match('/^' . $pattern . '\/\??pwamp-sw-html$/im', $this->page_url) )
 		{
-			$permalink = !empty(get_option('permalink_structure')) ? 'pretty' : 'ugly';
-
 			header('Content-Type: text/html; charset=utf-8', true);
 			echo '<!doctype html>
 <html>
 <head>
 <title>Installing service worker...</title>
 <script type=\'text/javascript\'>
-	var swsource = \'' . $home_url . '/' . ( $permalink != 'ugly' ? 'pwamp-sw-js' : '?pwamp-sw-js' ) . '\';
+	var swsource = \'' . $this->home_url . '/' . ( !empty($this->permalink) ? 'pwamp-sw-js' : '?pwamp-sw-js' ) . '\';
 	if ( \'serviceWorker\' in navigator ) {
 		navigator.serviceWorker.register(swsource).then(function(reg) {
 			console.log(\'ServiceWorker scope: \', reg.scope);
@@ -89,12 +91,10 @@ class PWAMPO
 
 			exit();
 		}
-		elseif ( preg_match('/^' . $base . '\/\??pwamp-sw-js$/im', $page_url) )
+		elseif ( preg_match('/^' . $pattern . '\/\??pwamp-sw-js$/im', $this->page_url) )
 		{
-			$plugin_dir_url = plugin_dir_url(__FILE__);
-
 			header('Content-Type: application/javascript', true);
-			echo 'importScripts(\'.' . str_replace($home_url, '', $plugin_dir_url) . 'lib/sw-toolbox/sw-toolbox.js\');
+			echo 'importScripts(\'.' . str_replace($this->home_url, '', plugin_dir_url(__FILE__)) . 'lib/sw-toolbox/sw-toolbox.js\');
 toolbox.router.default = toolbox.cacheFirst;
 self.addEventListener(\'install\', function(event) {
 	console.log(\'SW: Installing service worker\');
@@ -102,7 +102,7 @@ self.addEventListener(\'install\', function(event) {
 
 			exit();
 		}
-		elseif ( preg_match('/^' . $base . '\/\?pwamp-viewport-width=(\d+)$/im', $page_url, $matches) )
+		elseif ( preg_match('/^' . $pattern . '\/\?pwamp-viewport-width=(\d+)$/im', $this->page_url, $matches) )
 		{
 			$viewport_width = $matches[1];
 
@@ -120,9 +120,7 @@ self.addEventListener(\'install\', function(event) {
 
 	public function get_amphtml()
 	{
-		$home_url = home_url();
-		$parts = parse_url($home_url);
-
+		$parts = parse_url($this->home_url);
 		$args = array('desktop' => false, 'amp' => '');
 		$amphtml = $parts['scheme'] . '://' . $parts['host'] . add_query_arg($args);
 		$amphtml = htmlspecialchars($amphtml);
@@ -132,9 +130,7 @@ self.addEventListener(\'install\', function(event) {
 
 	private function get_canonical()
 	{
-		$home_url = home_url();
-		$parts = parse_url($home_url);
-
+		$parts = parse_url($this->home_url);
 		$args = array('amp' => false, 'desktop' => '');
 		$canonical = $parts['scheme'] . '://' . $parts['host'] . add_query_arg($args);
 		$canonical = htmlspecialchars($canonical);
@@ -207,7 +203,6 @@ self.addEventListener(\'install\', function(event) {
 		return $page_type;
 	}
 
-
 	private function get_device()
 	{
 		$user_agent = !empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
@@ -224,18 +219,18 @@ self.addEventListener(\'install\', function(event) {
 	private function transcode_page()
 	{
 		$page = preg_replace('/^[\s\t]*<style type="[^"]+" id="[^"]+"><\/style>$/im', '', $this->page);
-		$home_url = home_url();
+
 		$data = array(
 			'page_type' => $this->get_page_type(),
 			'themes_url' => get_template_directory_uri(),
 			'plugins_url' => plugins_url(),
-			'viewport_width' => !empty($_COOKIE['pwamp-viewport-width']) ? $_COOKIE['pwamp-viewport-width'] : '',
-			'permalink' => !empty(get_option('permalink_structure')) ? 'pretty' : 'ugly',
-			'page_url' => ( isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http' ) . '://' . $_SERVER[HTTP_HOST] . $_SERVER[REQUEST_URI],
+			'viewport_width' => $this->viewport_width,
+			'permalink' => $this->permalink,
+			'page_url' => $this->page_url,
 			'canonical' => $this->get_canonical()
 		);
 
-		$transcoding = new PWAMPO_Transcoding($home_url, $data);
+		$transcoding = new PWAMPO_Transcoding($this->home_url, $data);
 
 		$transcoding->transcode($page);
 
@@ -296,8 +291,7 @@ self.addEventListener(\'install\', function(event) {
 
 	private function json_redirect($redirection)
 	{
-		$home_url = home_url();
-		$parts = parse_url($home_url);
+		$parts = parse_url($this->home_url);
 		$host_url = $parts['scheme'] . '://' . $parts['host'];
 
 		header('Content-type: application/json');
@@ -358,19 +352,16 @@ self.addEventListener(\'install\', function(event) {
 			setcookie('pwamp-args', '', $time-1, COOKIEPATH, COOKIE_DOMAIN);
 		}
 
-		$redirection = home_url();
-		$this->json_redirect($redirection);
+		$this->json_redirect($this->home_url);
 	}
 
 	public function wp_die_handler($function)
 	{
-		$function = array($this, 'die_handler');
-
-		return $function;
+		return array($this, 'die_handler');
 	}
 
 
-	public function main()
+	public function plugins_loaded()
 	{
 		if ( is_admin() || $GLOBALS['pagenow'] === 'wp-login.php' )
 		{
@@ -407,6 +398,7 @@ self.addEventListener(\'install\', function(event) {
 
 		setcookie('pwamp-style', $device, time()+60*60*24*365, COOKIEPATH, COOKIE_DOMAIN);
 
+
 		if ( $device != 'mobile' )
 		{
 			add_action('wp_head', array($this, 'get_amphtml'), 0);
@@ -438,10 +430,6 @@ self.addEventListener(\'install\', function(event) {
 }
 
 
-function pwampo_main()
-{
-	$pwamp = new PWAMPO();
+$pwamp = new PWAMPO();
 
-	$pwamp->main();
-}
-add_action('plugins_loaded', 'pwampo_main', 1);
+add_action('plugins_loaded', array($pwamp, 'plugins_loaded'), 1);
