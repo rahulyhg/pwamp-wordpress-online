@@ -4,10 +4,10 @@ if ( !defined('ABSPATH') )
 	exit;
 }
 
-require_once plugin_dir_path( __FILE__ ) . '../var/cfg.php';
-require_once plugin_dir_path( __FILE__ ) . '../lib/flx.php';
+require_once plugin_dir_path( __FILE__ ) . 'cfg.php';
+require_once plugin_dir_path( __FILE__ ) . 'flx.php';
 
-class MO_Detection
+class MDetection
 {
 	public function __construct()
 	{

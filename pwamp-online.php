@@ -1,12 +1,12 @@
 <?php
 /*
-Plugin Name: PWAMP WordPress Online
+Plugin Name: PWA AMP WordPress Online
 Plugin URI:  https://flexplat.com/pwamp-wordpress/
-Description: Transcodes WordPress into both first load cache-enabled of PWA and lightning fast load time of AMP style.  When end users visit your web site, after WordPress generates web pages, this plugin will forward these pages to my transcoding server: flexplat.com; flexplat.com will convert them into AMP style and return these new pages to this plugin, then this plugin will display the pages to end users.
-Version:     2.7.0
+Description: Converts WordPress theme into Progressive Web Apps and Accelerated Mobile Pages style.  For more theme conversion, please visit: https://flexplat.com/pwamp-wordpress/ .
+Version:     3.1.0
 Author:      Rickey Gu
 Author URI:  https://flexplat.com
-Text Domain: pwampo
+Text Domain: pwamp-online
 Domain Path: /languages
 */
 
@@ -15,29 +15,26 @@ if ( !defined('ABSPATH') )
 	exit;
 }
 
-require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-require_once plugin_dir_path(__FILE__) . 'lib/detection.php';
-require_once plugin_dir_path(__FILE__) . 'theme/transcoding.php';
-
-
-class PWAMPO
+class PWAMP
 {
+	private $time = 0;
+
 	private $page = '';
+
 	private $home_url = '';
+	private $theme = '';
+
 	private $page_url = '';
 	private $viewport_width = '';
 	private $permalink = '';
 
+	private $plugin_dir_path = '';
+	private $plugin_dir_url = '';
+
 
 	public function __construct()
 	{
-		$this->page = '';
-		$this->home_url = home_url();
-		$parts = parse_url($this->home_url);
-		$this->page_url = $parts['scheme'] . '://' . $parts['host'] . add_query_arg();
-		$this->viewport_width = !empty($_COOKIE['pwamp-viewport-width']) ? $_COOKIE['pwamp-viewport-width'] : '';
-		$this->permalink = get_option('permalink_structure');
 	}
 
 	public function __destruct()
@@ -45,29 +42,51 @@ class PWAMPO
 	}
 
 
-	public function init()
+	private function init()
+	{
+		$this->time = time();
+
+		$this->page = '';
+
+		$this->home_url = home_url();
+		$this->theme = get_option('template');
+
+		$parts = parse_url($this->home_url);
+		$this->page_url = $parts['scheme'] . '://' . $parts['host'] . add_query_arg();
+		$this->viewport_width = !empty($_COOKIE['pwamp_viewport_width']) ? $_COOKIE['pwamp_viewport_width'] : '';
+		$this->permalink = get_option('permalink_structure');
+
+		$this->plugin_dir_path = plugin_dir_path(__FILE__);
+		$this->plugin_dir_url = plugin_dir_url(__FILE__);
+	}
+
+	private function divert()
 	{
 		$pattern = str_replace(array('/', '.'), array('\/', '\.'), $this->home_url);
-		if ( preg_match('/^' . $pattern . '\/\??manifest\.webmanifest$/im', $this->page_url) )
+		if ( preg_match('/^' . $pattern . '\/((index\.php)?\?)?manifest\.webmanifest$/im', $this->page_url) )
 		{
 			header('Content-Type: application/x-web-app-manifest+json', true);
 			echo '{
 	"name": "' . get_bloginfo('name') . ' &#8211; ' . get_bloginfo('description') . '",
 	"short_name": "' . get_bloginfo('name') . '",
 	"start_url": "' . $this->home_url . '",
-	"display": "standalone",
-	"theme_color": "#ffffff",
-	"background_color": "#ffffff",
 	"icons": [{
-		"src": ".' . str_replace($this->home_url, '', plugin_dir_url(__FILE__)) . 'lib/manifest/pwamp-logo-512.png",
+		"src": ".' . str_replace($this->home_url, '', $this->plugin_dir_url) . 'pwamp/mf/mf-logo-192.png",
+		"sizes": "192x192",
+		"type": "image/png"
+	}, {
+		"src": ".' . str_replace($this->home_url, '', $this->plugin_dir_url) . 'pwamp/mf/mf-logo-512.png",
 		"sizes": "512x512",
 		"type": "image/png"
-	}]
+	}],
+	"theme_color": "#ffffff",
+	"background_color": "#ffffff",
+	"display": "standalone"
 }';
 
 			exit();
 		}
-		elseif ( preg_match('/^' . $pattern . '\/\??pwamp-sw-html$/im', $this->page_url) )
+		elseif ( preg_match('/^' . $pattern . '\/((index\.php)?\?)?pwamp-sw-html$/im', $this->page_url) )
 		{
 			header('Content-Type: text/html; charset=utf-8', true);
 			echo '<!doctype html>
@@ -91,10 +110,10 @@ class PWAMPO
 
 			exit();
 		}
-		elseif ( preg_match('/^' . $pattern . '\/\??pwamp-sw-js$/im', $this->page_url) )
+		elseif ( preg_match('/^' . $pattern . '\/((index\.php)?\?)?pwamp-sw-js$/im', $this->page_url) )
 		{
 			header('Content-Type: application/javascript', true);
-			echo 'importScripts(\'.' . str_replace($this->home_url, '', plugin_dir_url(__FILE__)) . 'lib/sw-toolbox/sw-toolbox.js\');
+			echo 'importScripts(\'.' . str_replace($this->home_url, '', $this->plugin_dir_url) . 'pwamp/sw/sw-toolbox.js\');
 toolbox.router.default = toolbox.cacheFirst;
 self.addEventListener(\'install\', function(event) {
 	console.log(\'SW: Installing service worker\');
@@ -102,11 +121,11 @@ self.addEventListener(\'install\', function(event) {
 
 			exit();
 		}
-		elseif ( preg_match('/^' . $pattern . '\/\?pwamp-viewport-width=(\d+)$/im', $this->page_url, $matches) )
+		elseif ( preg_match('/^' . $pattern . '\/(index\.php)?\?pwamp-viewport-width=(\d+)$/im', $this->page_url, $matches) )
 		{
-			$viewport_width = $matches[1];
+			$viewport_width = $matches[2];
 
-			setcookie('pwamp-viewport-width', $viewport_width, time()+60*60*24*365, COOKIEPATH, COOKIE_DOMAIN);
+			setcookie('pwamp_viewport_width', $viewport_width, $this->time+60*60*24*365, COOKIEPATH, COOKIE_DOMAIN);
 
 			if ( is_plugin_active('adaptive-images/adaptive-images.php') )
 			{
@@ -121,7 +140,7 @@ self.addEventListener(\'install\', function(event) {
 	public function get_amphtml()
 	{
 		$parts = parse_url($this->home_url);
-		$args = array('desktop' => false, 'amp' => '');
+		$args = array('desktop' => false, 'amp' => '1');
 		$amphtml = $parts['scheme'] . '://' . $parts['host'] . add_query_arg($args);
 		$amphtml = htmlspecialchars($amphtml);
 
@@ -131,7 +150,7 @@ self.addEventListener(\'install\', function(event) {
 	private function get_canonical()
 	{
 		$parts = parse_url($this->home_url);
-		$args = array('amp' => false, 'desktop' => '');
+		$args = array('amp' => false, 'desktop' => '1');
 		$canonical = $parts['scheme'] . '://' . $parts['host'] . add_query_arg($args);
 		$canonical = htmlspecialchars($canonical);
 
@@ -209,7 +228,7 @@ self.addEventListener(\'install\', function(event) {
 		$accept = !empty($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : '';
 		$profile = !empty($_SERVER['HTTP_PROFILE']) ? $_SERVER['HTTP_PROFILE'] : '';
 
-		$detection = new MO_Detection();
+		$detection = new MDetection();
 
 		$device = $detection->get_device($user_agent, $accept, $profile);
 
@@ -230,9 +249,9 @@ self.addEventListener(\'install\', function(event) {
 			'canonical' => $this->get_canonical()
 		);
 
-		$transcoding = new PWAMPO_Transcoding($this->home_url, $data);
+		$transcoding = new PWAMPTranscoding();
 
-		$transcoding->transcode($page);
+		$transcoding->transcode($page, $this->home_url, $this->theme, $data);
 
 		return $page;
 	}
@@ -245,7 +264,7 @@ self.addEventListener(\'install\', function(event) {
 
 	public function after_setup_theme()
 	{
-		if ( empty($_COOKIE['pwamp-message']) )
+		if ( empty($_COOKIE['pwamp_message']) )
 		{
 			ob_start(array($this, 'catch_page_callback'));
 
@@ -253,23 +272,21 @@ self.addEventListener(\'install\', function(event) {
 		}
 
 
-		$time = time();
-
-		$message = $_COOKIE['pwamp-message'];
-		setcookie('pwamp-message', '', $time-1, COOKIEPATH, COOKIE_DOMAIN);
+		$message = $_COOKIE['pwamp_message'];
+		setcookie('pwamp_message', '', $this->time-1, COOKIEPATH, COOKIE_DOMAIN);
 
 		$title = '';
-		if ( !empty($_COOKIE['pwamp-title']) )
+		if ( !empty($_COOKIE['pwamp_title']) )
 		{
-			$title = $_COOKIE['pwamp-title'];
-			setcookie('pwamp-title', '', $time-1, COOKIEPATH, COOKIE_DOMAIN);
+			$title = $_COOKIE['pwamp_title'];
+			setcookie('pwamp_title', '', $this->time-1, COOKIEPATH, COOKIE_DOMAIN);
 		}
 
 		$args = array();
-		if ( !empty($_COOKIE['pwamp-args']) )
+		if ( !empty($_COOKIE['pwamp_args']) )
 		{
-			$args = json_decode(stripslashes($_COOKIE['pwamp-args']));
-			setcookie('pwamp-args', '', $time-1, COOKIEPATH, COOKIE_DOMAIN);
+			$args = json_decode(stripslashes($_COOKIE['pwamp_args']));
+			setcookie('pwamp_args', '', $this->time-1, COOKIEPATH, COOKIE_DOMAIN);
 		}
 
 		_default_wp_die_handler($message, $title, $args);
@@ -330,26 +347,24 @@ self.addEventListener(\'install\', function(event) {
 		}
 
 
-		$time = time();
-
-		setcookie('pwamp-message', $message, $time+60, COOKIEPATH, COOKIE_DOMAIN);
+		setcookie('pwamp_message', $message, $this->time+60, COOKIEPATH, COOKIE_DOMAIN);
 
 		if ( !empty($title) )
 		{
-			setcookie('pwamp-title', $title, $time+60, COOKIEPATH, COOKIE_DOMAIN);
+			setcookie('pwamp_title', $title, $this->time+60, COOKIEPATH, COOKIE_DOMAIN);
 		}
 		else
 		{
-			setcookie('pwamp-title', '', $time-1, COOKIEPATH, COOKIE_DOMAIN);
+			setcookie('pwamp_title', '', $this->time-1, COOKIEPATH, COOKIE_DOMAIN);
 		}
 
 		if ( !empty($args) )
 		{
-			setcookie('pwamp-args', json_encode($args), $time+60, COOKIEPATH, COOKIE_DOMAIN);
+			setcookie('pwamp_args', json_encode($args), $this->time+60, COOKIEPATH, COOKIE_DOMAIN);
 		}
 		else
 		{
-			setcookie('pwamp-args', '', $time-1, COOKIEPATH, COOKIE_DOMAIN);
+			setcookie('pwamp_args', '', $this->time-1, COOKIEPATH, COOKIE_DOMAIN);
 		}
 
 		$this->json_redirect($this->home_url);
@@ -368,35 +383,35 @@ self.addEventListener(\'install\', function(event) {
 			return;
 		}
 
-		if ( is_plugin_active('pwampp/pwampp.php') )
+
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+		$this->init();
+		$this->divert();
+
+
+		if ( !empty($_GET['amp']) || !empty($_GET['desktop']) )
 		{
-			return;
+			$device = empty($_GET['amp']) ? 'desktop' : 'mobile';
 		}
-
-
-		add_action('init', array($this, 'init'));
-
-
-		if ( isset($_GET['amp']) || isset($_GET['desktop']) )
+		elseif ( !empty($_COOKIE['pwamp_style']) )
 		{
-			$device = !isset($_GET['amp']) ? 'desktop' : 'mobile';
-		}
-		elseif ( !empty($_COOKIE['pwamp-style']) )
-		{
-			$device = $_COOKIE['pwamp-style'] != 'mobile' ? 'desktop' : 'mobile';
+			$device = $_COOKIE['pwamp_style'] != 'mobile' ? 'desktop' : 'mobile';
 		}
 		else
 		{
+			require_once $this->plugin_dir_path . 'pwamp/detection.php';
+
 			$device = $this->get_device();
 			if ( empty($device) )
 			{
 				return;
 			}
 
-			$device = ( $device == 'desktop' || $device == 'bot' ) ? 'desktop' : 'mobile';
+			$device = ( $device == 'desktop' || $device == 'desktop-bot' ) ? 'desktop' : 'mobile';
 		}
 
-		setcookie('pwamp-style', $device, time()+60*60*24*365, COOKIEPATH, COOKIE_DOMAIN);
+		setcookie('pwamp_style', $device, $this->time+60*60*24*365, COOKIEPATH, COOKIE_DOMAIN);
 
 
 		if ( $device != 'mobile' )
@@ -409,27 +424,28 @@ self.addEventListener(\'install\', function(event) {
 
 		if ( is_plugin_active('adaptive-images/adaptive-images.php') )
 		{
-			if ( !empty($_COOKIE['pwamp-viewport-width']) )
+			if ( !empty($_COOKIE['pwamp_viewport_width']) )
 			{
-				$viewport_width = $_COOKIE['pwamp-viewport-width'];
+				$viewport_width = $_COOKIE['pwamp_viewport_width'];
 				setcookie('resolution', $viewport_width . ',1', 0, '/');
 			}
 		}
 
 
+		require_once $this->plugin_dir_path . 'pwamp/transcoding.php';
+
+
 		add_action('after_setup_theme', array($this, 'after_setup_theme'));
 		add_action('shutdown', array($this, 'shutdown'));
 
-
 		add_filter('comment_post_redirect', array($this, 'comment_post_redirect'), 10, 2);
 		add_filter('wp_die_handler', array($this, 'wp_die_handler'), 10, 1);
-
 
 		add_filter('show_admin_bar', '__return_false');
 	}
 }
 
 
-$pwamp = new PWAMPO();
+$pwamp = new PWAMP();
 
 add_action('plugins_loaded', array($pwamp, 'plugins_loaded'), 1);

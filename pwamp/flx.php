@@ -4,7 +4,7 @@ if ( !defined('ABSPATH') )
 	exit;
 }
 
-require_once plugin_dir_path( __FILE__ ) . '../var/cfg.php';
+require_once plugin_dir_path( __FILE__ ) . 'cfg.php';
 
 class Flx
 {

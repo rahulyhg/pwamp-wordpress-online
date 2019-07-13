@@ -4,19 +4,13 @@ if ( !defined('ABSPATH') )
 	exit;
 }
 
-require_once plugin_dir_path( __FILE__ ) . '../var/cfg.php';
-require_once plugin_dir_path( __FILE__ ) . '../lib/flx.php';
+require_once plugin_dir_path( __FILE__ ) . 'cfg.php';
+require_once plugin_dir_path( __FILE__ ) . 'flx.php';
 
-class PWAMPO_Transcoding
+class PWAMPTranscoding
 {
-	private $home_url;
-	private $data;
-
-
-	public function __construct($home_url, $data)
+	public function __construct()
 	{
-		$this->home_url = $home_url;
-		$this->data = $data;
 	}
 
 	public function __destruct()
@@ -24,7 +18,7 @@ class PWAMPO_Transcoding
 	}
 
 
-	public function transcode(&$page)
+	public function transcode(&$page, $home_url, $theme, $data)
 	{
 		$flx = new Flx();
 
@@ -32,8 +26,9 @@ class PWAMPO_Transcoding
 
 		$request = array(
 			'page' => &$page,
-			'home_url' => $this->home_url,
-			'data' => $this->data
+			'home_url' => $home_url,
+			'theme' => $theme,
+			'data' => $data
 		);
 
 		$response = $flx->query(FLX_WORDPRESS, $request);
