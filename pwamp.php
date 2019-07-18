@@ -1,12 +1,12 @@
 <?php
 /*
-Plugin Name: PWA AMP WordPress Online
+Plugin Name: PWA AMP Online
 Plugin URI:  https://flexplat.com/pwamp-wordpress/
-Description: Converts WordPress theme into Progressive Web Apps and Accelerated Mobile Pages style.  For more theme conversion, please visit: https://flexplat.com/pwamp-wordpress/ .
-Version:     3.1.0
+Description: Converts WordPress themes into Progressive Web Apps and Accelerated Mobile Pages styles.  For more theme conversion, please visit: https://flexplat.com/pwamp-wordpress/ .
+Version:     3.2.0
 Author:      Rickey Gu
 Author URI:  https://flexplat.com
-Text Domain: pwamp-online
+Text Domain: pwamp
 Domain Path: /languages
 */
 
@@ -14,6 +14,11 @@ if ( !defined('ABSPATH') )
 {
 	exit;
 }
+
+require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+require_once plugin_dir_path(__FILE__) . 'pwamp/detection.php';
+require_once plugin_dir_path(__FILE__) . 'pwamp/transcoding.php';
 
 
 class PWAMP
@@ -28,9 +33,9 @@ class PWAMP
 	private $page_url = '';
 	private $viewport_width = '';
 	private $permalink = '';
-
-	private $plugin_dir_path = '';
 	private $plugin_dir_url = '';
+
+	private $plugin_dir = '';
 
 
 	public function __construct()
@@ -55,9 +60,10 @@ class PWAMP
 		$this->page_url = $parts['scheme'] . '://' . $parts['host'] . add_query_arg();
 		$this->viewport_width = !empty($_COOKIE['pwamp_viewport_width']) ? $_COOKIE['pwamp_viewport_width'] : '';
 		$this->permalink = get_option('permalink_structure');
-
-		$this->plugin_dir_path = plugin_dir_path(__FILE__);
 		$this->plugin_dir_url = plugin_dir_url(__FILE__);
+
+		$this->plugin_dir = str_replace($this->home_url, '', $this->plugin_dir_url);
+		$this->plugin_dir = preg_replace('/\/$/im', '', $this->plugin_dir);
 	}
 
 	private function divert()
@@ -71,11 +77,11 @@ class PWAMP
 	"short_name": "' . get_bloginfo('name') . '",
 	"start_url": "' . $this->home_url . '",
 	"icons": [{
-		"src": ".' . str_replace($this->home_url, '', $this->plugin_dir_url) . 'pwamp/mf/mf-logo-192.png",
+		"src": ".' . $this->plugin_dir . '/pwamp/mf/mf-logo-192.png",
 		"sizes": "192x192",
 		"type": "image/png"
 	}, {
-		"src": ".' . str_replace($this->home_url, '', $this->plugin_dir_url) . 'pwamp/mf/mf-logo-512.png",
+		"src": ".' . $this->plugin_dir . '/pwamp/mf/mf-logo-512.png",
 		"sizes": "512x512",
 		"type": "image/png"
 	}],
@@ -113,7 +119,7 @@ class PWAMP
 		elseif ( preg_match('/^' . $pattern . '\/((index\.php)?\?)?pwamp-sw-js$/im', $this->page_url) )
 		{
 			header('Content-Type: application/javascript', true);
-			echo 'importScripts(\'.' . str_replace($this->home_url, '', $this->plugin_dir_url) . 'pwamp/sw/sw-toolbox.js\');
+			echo 'importScripts(\'.' . $this->plugin_dir . '/pwamp/sw/sw-toolbox.js\');
 toolbox.router.default = toolbox.cacheFirst;
 self.addEventListener(\'install\', function(event) {
 	console.log(\'SW: Installing service worker\');
@@ -243,9 +249,10 @@ self.addEventListener(\'install\', function(event) {
 			'page_type' => $this->get_page_type(),
 			'themes_url' => get_template_directory_uri(),
 			'plugins_url' => plugins_url(),
+			'page_url' => $this->page_url,
 			'viewport_width' => $this->viewport_width,
 			'permalink' => $this->permalink,
-			'page_url' => $this->page_url,
+			'plugin_dir_url' => $this->plugin_dir_url,
 			'canonical' => $this->get_canonical()
 		);
 
@@ -384,9 +391,8 @@ self.addEventListener(\'install\', function(event) {
 		}
 
 
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-
 		$this->init();
+
 		$this->divert();
 
 
@@ -400,8 +406,6 @@ self.addEventListener(\'install\', function(event) {
 		}
 		else
 		{
-			require_once $this->plugin_dir_path . 'pwamp/detection.php';
-
 			$device = $this->get_device();
 			if ( empty($device) )
 			{
@@ -412,7 +416,6 @@ self.addEventListener(\'install\', function(event) {
 		}
 
 		setcookie('pwamp_style', $device, $this->time+60*60*24*365, COOKIEPATH, COOKIE_DOMAIN);
-
 
 		if ( $device != 'mobile' )
 		{
@@ -430,9 +433,6 @@ self.addEventListener(\'install\', function(event) {
 				setcookie('resolution', $viewport_width . ',1', 0, '/');
 			}
 		}
-
-
-		require_once $this->plugin_dir_path . 'pwamp/transcoding.php';
 
 
 		add_action('after_setup_theme', array($this, 'after_setup_theme'));
