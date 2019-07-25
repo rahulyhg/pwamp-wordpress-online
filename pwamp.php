@@ -3,7 +3,7 @@
 Plugin Name: PWA AMP Online
 Plugin URI:  https://flexplat.com/pwamp-wordpress/
 Description: Converts WordPress themes into Progressive Web Apps and Accelerated Mobile Pages styles.  For more theme conversion, please visit: https://flexplat.com/pwamp-wordpress/ .
-Version:     3.2.0
+Version:     3.3.0
 Author:      Rickey Gu
 Author URI:  https://flexplat.com
 Text Domain: pwamp
@@ -120,10 +120,7 @@ class PWAMP
 		{
 			header('Content-Type: application/javascript', true);
 			echo 'importScripts(\'.' . $this->plugin_dir . '/pwamp/sw/sw-toolbox.js\');
-toolbox.router.default = toolbox.cacheFirst;
-self.addEventListener(\'install\', function(event) {
-	console.log(\'SW: Installing service worker\');
-});';
+toolbox.router.default = toolbox.cacheFirst;';
 
 			exit();
 		}

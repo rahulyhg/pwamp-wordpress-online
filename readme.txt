@@ -5,7 +5,7 @@ Tags: wordpress, amp, plugin, google, theme, pwa, accelerated mobile pages, prog
 Requires at least: 4.7
 Tested up to: 5.2.2
 Requires PHP: 5.2.4
-Stable tag: 3.2.0
+Stable tag: 3.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -54,23 +54,30 @@ You can Google to find the solution, for example, this one: https://www.howtogee
 4. https://illdy-online-2.flexplat.com/?amp=1
 5. https://shapely-online.flexplat.com/?amp=1
 6. https://shapely-online-2.flexplat.com/?amp=1
-7. https://twentyfifteen-online.flexplat.com/?amp=1
-8. https://twentyfifteen-online-2.flexplat.com/?amp=1
-9. https://twentynineteen-online.flexplat.com/?amp=1
-10. https://twentynineteen-online-2.flexplat.com/?amp=1
-11. https://twentyseventeen-online.flexplat.com/?amp=1
-12. https://twentyseventeen-online-2.flexplat.com/?amp=1
-13. https://twentysixteen-online.flexplat.com/?amp=1
-14. https://twentysixteen-online-2.flexplat.com/?amp=1
-15. https://tyche-online.flexplat.com/?amp=1
-16. https://tyche-online-2.flexplat.com/?amp=1
-17. https://virtue-online.flexplat.com/?amp=1
-18. https://virtue-online-2.flexplat.com/?amp=1
+7. https://twentynineteen-online.flexplat.com/?amp=1
+8. https://twentynineteen-online-2.flexplat.com/?amp=1
+9. https://twentyseventeen-online.flexplat.com/?amp=1
+10. https://twentyseventeen-online-2.flexplat.com/?amp=1
+11. https://twentysixteen-online.flexplat.com/?amp=1
+12. https://twentysixteen-online-2.flexplat.com/?amp=1
+13. https://tyche-online.flexplat.com/?amp=1
+14. https://tyche-online-2.flexplat.com/?amp=1
+15. https://virtue-online.flexplat.com/?amp=1
+16. https://virtue-online-2.flexplat.com/?amp=1
 
 == Screenshots ==
 1. https://download.flexplat.com/pwamp-wordpress.png
 
 == Changelog ==
+
+= 3.3.0 =
+(Sun., Jul. 21, 2019)
+* new feature: support TwentySeventeen
+* new feature: support TwentySixteen
+
+= 3.2.0 =
+(Wed., Jul. 17, 2019)
+* new feature: support TwentyNineteen
 
 = 3.1.0 =
 (Sat., Jul. 13, 2019)
